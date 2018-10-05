@@ -81,7 +81,7 @@ namespace LastWriteWinsElementSet
         }
 
         /// <summary>
-        /// Determines if this element set is less or equal another element set
+        /// Determines if this element set is less than or equal to another element set
         /// </summary>
         /// <param name="elementSet">The other element set</param>
         /// <returns>A boolean to indicate that whether this element set is less or equal to another element set</returns>
