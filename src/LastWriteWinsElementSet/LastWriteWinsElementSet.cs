@@ -7,6 +7,7 @@ namespace LastWriteWinsElementSet
     public class LastWriteWinsElementSet<T>
     {
         private readonly IEqualityComparer<T> _comparer;
+        private readonly LastWriteWinsElementEqualityComparer<T> _lastWriteWinsElementComparer;
         private IDictionary<T, HashSet<LastWriteWinsElement<T>>> _addSet, _removeSet;
 
         /// <summary>
@@ -27,6 +28,7 @@ namespace LastWriteWinsElementSet
         {
             comparer = comparer?? EqualityComparer<T>.Default;
             _comparer = comparer;
+            _lastWriteWinsElementComparer = new LastWriteWinsElementEqualityComparer<T>(comparer);
             _addSet = addSet?? new Dictionary<T, HashSet<LastWriteWinsElement<T>>>(comparer);
             _removeSet = removeSet?? new Dictionary<T, HashSet<LastWriteWinsElement<T>>>(comparer);
         }
@@ -75,7 +77,7 @@ namespace LastWriteWinsElementSet
             }
             else
             {
-                set[element] = new HashSet<LastWriteWinsElement<T>>(new LastWriteWinsElementEqualityComparer<T>(_comparer))
+                set[element] = new HashSet<LastWriteWinsElement<T>>(_lastWriteWinsElementComparer)
                 {
                     elementWithTimestamp
                 };
@@ -105,7 +107,7 @@ namespace LastWriteWinsElementSet
                         var additionsOrRemovals2 = set2[element];
                         return 
                             !additionsOrRemovals1.Except(additionsOrRemovals2,
-                                    new LastWriteWinsElementEqualityComparer<T>(_comparer))
+                                    _lastWriteWinsElementComparer)
                                 .Any();
                     }
                 );
@@ -140,7 +142,7 @@ namespace LastWriteWinsElementSet
                     var removalsWithTheSameTimestamp = removals.Where(x => x.Timestamp == addition.Timestamp);
                     removals = new HashSet<LastWriteWinsElement<T>>(
                         removals.Except(removalsWithTheSameTimestamp), 
-                        new LastWriteWinsElementEqualityComparer<T>(_comparer)
+                        _lastWriteWinsElementComparer
                     );
                 }
 
