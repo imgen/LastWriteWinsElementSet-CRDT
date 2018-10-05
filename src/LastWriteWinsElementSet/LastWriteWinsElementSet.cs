@@ -137,14 +137,10 @@ namespace LastWriteWinsElementSet
 
                 var additions = _addSet[element];
                 var removals = _removeSet[element];
-                foreach (var addition in additions)
-                {
-                    var removalsWithTheSameTimestamp = removals.Where(x => x.Timestamp == addition.Timestamp);
-                    removals = new HashSet<LastWriteWinsElement<T>>(
-                        removals.Except(removalsWithTheSameTimestamp), 
-                        _lastWriteWinsElementComparer
-                    );
-                }
+                removals = new HashSet<LastWriteWinsElement<T>>(
+                    removals.Except(additions),
+                    _lastWriteWinsElementComparer
+                );
 
                 if (removals.Any())
                 {
