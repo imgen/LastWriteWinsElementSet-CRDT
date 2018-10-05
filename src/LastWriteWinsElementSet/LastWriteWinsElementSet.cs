@@ -7,28 +7,28 @@ namespace LastWriteWinsElementSet
     public class LastWriteWinsElementSet<T>
     {
         private readonly IEqualityComparer<T> _comparer;
-        private IDictionary<T, List<LastWriteWinsElement<T>>> _addSet, _removeSet;
+        private IDictionary<T, HashSet<LastWriteWinsElement<T>>> _addSet, _removeSet;
 
         /// <summary>
         /// Gets a clone of _addSet so original set won't be modified
         /// </summary>
-        public IDictionary<T, List<LastWriteWinsElement<T>>> AddSet =>
-            _addSet.ToDictionary(pair => pair.Key, pair => pair.Value.ToList());
+        public IDictionary<T, HashSet<LastWriteWinsElement<T>>> AddSet =>
+            _addSet.ToDictionary(pair => pair.Key, pair => pair.Value);
         
         /// <summary>
         /// Gets a clone of _removeSet so original set won't be modified
         /// </summary>
-        public IDictionary<T, List<LastWriteWinsElement<T>>> RemoveSet =>
-            _removeSet.ToDictionary(pair => pair.Key, pair => pair.Value.ToList());
+        public IDictionary<T, HashSet<LastWriteWinsElement<T>>> RemoveSet =>
+            _removeSet.ToDictionary(pair => pair.Key, pair => pair.Value);
 
         public LastWriteWinsElementSet(IEqualityComparer<T> comparer = null, 
-            IDictionary<T, List<LastWriteWinsElement<T>>> addSet = null,
-            IDictionary<T, List<LastWriteWinsElement<T>>> removeSet = null)
+            IDictionary<T, HashSet<LastWriteWinsElement<T>>> addSet = null,
+            IDictionary<T, HashSet<LastWriteWinsElement<T>>> removeSet = null)
         {
             comparer = comparer?? EqualityComparer<T>.Default;
             _comparer = comparer;
-            _addSet = addSet?? new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
-            _removeSet = removeSet?? new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
+            _addSet = addSet?? new Dictionary<T, HashSet<LastWriteWinsElement<T>>>(comparer);
+            _removeSet = removeSet?? new Dictionary<T, HashSet<LastWriteWinsElement<T>>>(comparer);
         }
 
         public bool Lookup(T element)
@@ -62,8 +62,8 @@ namespace LastWriteWinsElementSet
             AddToSet(_removeSet, element, timestamp);
         }
 
-        private static void AddToSet<T>(
-            IDictionary<T, List<LastWriteWinsElement<T>>> set, 
+        private void AddToSet(
+            IDictionary<T, HashSet<LastWriteWinsElement<T>>> set, 
             T element,
             DateTime? timestamp = null)
         {
@@ -75,7 +75,7 @@ namespace LastWriteWinsElementSet
             }
             else
             {
-                set[element] = new List<LastWriteWinsElement<T>>
+                set[element] = new HashSet<LastWriteWinsElement<T>>(new LastWriteWinsElementEqualityComparer<T>(_comparer))
                 {
                     elementWithTimestamp
                 };
@@ -91,8 +91,8 @@ namespace LastWriteWinsElementSet
             IsSubset(_addSet, elementSet._addSet) && 
             IsSubset(_removeSet, elementSet._removeSet);
 
-        private bool IsSubset(IDictionary<T, List<LastWriteWinsElement<T>>> set1,
-            IDictionary<T, List<LastWriteWinsElement<T>>> set2) => 
+        private bool IsSubset(IDictionary<T, HashSet<LastWriteWinsElement<T>>> set1,
+            IDictionary<T, HashSet<LastWriteWinsElement<T>>> set2) => 
             set1.Keys.All(
                     element =>
                     {
@@ -138,7 +138,10 @@ namespace LastWriteWinsElementSet
                 foreach (var addition in additions)
                 {
                     var removalsWithTheSameTimestamp = removals.Where(x => x.Timestamp == addition.Timestamp);
-                    removals = removals.Except(removalsWithTheSameTimestamp).ToList();
+                    removals = new HashSet<LastWriteWinsElement<T>>(
+                        removals.Except(removalsWithTheSameTimestamp), 
+                        new LastWriteWinsElementEqualityComparer<T>(_comparer)
+                    );
                 }
 
                 if (removals.Any())
@@ -152,8 +155,8 @@ namespace LastWriteWinsElementSet
             }
         }
 
-        private static void UnionSet(IDictionary<T, List<LastWriteWinsElement<T>>> targetSet,
-            IDictionary<T, List<LastWriteWinsElement<T>>> sourceSet)
+        private void UnionSet(IDictionary<T, HashSet<LastWriteWinsElement<T>>> targetSet,
+            IDictionary<T, HashSet<LastWriteWinsElement<T>>> sourceSet)
         {
             foreach (var pair in sourceSet)
             {
