@@ -40,10 +40,10 @@ namespace LastWriteWinsElementSet
             var additions = _addSet[element];
             var removals = _removeSet[element];
 
-            var latestAddition = additions.OrderByDescending(x => x.Timestamp).First();
-            var latestRemoval = removals.OrderByDescending(x => x.Timestamp).First();
+            var latestAdditionTimestamp = additions.Max(x => x.Timestamp);
+            var latestRemovalTimestamp = removals.Max(x => x.Timestamp);
 
-            return latestAddition.Timestamp > latestRemoval.Timestamp;
+            return latestAdditionTimestamp > latestRemovalTimestamp;
         }
 
         public void Add(T element, DateTime? timestamp = null)
