@@ -21,12 +21,14 @@ namespace LastWriteWinsElementSet
         public IDictionary<T, List<LastWriteWinsElement<T>>> RemoveSet =>
             _removeSet.ToDictionary(pair => pair.Key, pair => pair.Value.ToList());
 
-        public LastWriteWinsElementSet(IEqualityComparer<T> comparer = null)
+        public LastWriteWinsElementSet(IEqualityComparer<T> comparer = null, 
+            IDictionary<T, List<LastWriteWinsElement<T>>> addSet = null,
+            IDictionary<T, List<LastWriteWinsElement<T>>> removeSet = null)
         {
             comparer = comparer?? EqualityComparer<T>.Default;
             _comparer = comparer;
-            _addSet = new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
-            _removeSet = new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
+            _addSet = addSet?? new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
+            _removeSet = removeSet?? new Dictionary<T, List<LastWriteWinsElement<T>>>(comparer);
         }
 
         public bool Lookup(T element)
@@ -163,10 +165,6 @@ namespace LastWriteWinsElementSet
         }
 
         public LastWriteWinsElementSet<T> Clone() => 
-            new LastWriteWinsElementSet<T>(_comparer)
-            {
-                _addSet = AddSet, 
-                _removeSet = RemoveSet
-            };
+            new LastWriteWinsElementSet<T>(_comparer, AddSet, RemoveSet);
     }
 }
