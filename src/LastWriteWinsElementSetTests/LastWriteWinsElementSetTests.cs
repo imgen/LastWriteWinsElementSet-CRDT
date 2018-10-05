@@ -84,14 +84,17 @@ namespace LastWriteWinsElementSetTests
 
             // An set should be the subset of itself
             elementSet1.Compare(elementSet2).Should().BeTrue();
+            elementSet2.Compare(elementSet1).Should().BeTrue();
             
             // If we add one more element to the clone, the original set should be an subset
             elementSet2.Add(500, latestTimestamp.AddSeconds(1));
             elementSet1.Compare(elementSet2).Should().BeTrue();
+            elementSet2.Compare(elementSet1).Should().BeFalse();
             
             // If we do one or more operations to the original set, the subset relationship breaks
             elementSet1.Add(600, latestTimestamp.AddSeconds(2));
             elementSet1.Compare(elementSet2).Should().BeFalse();
+            elementSet2.Compare(elementSet1).Should().BeFalse();
         }
 
         [Fact]
