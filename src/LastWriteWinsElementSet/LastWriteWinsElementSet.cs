@@ -117,7 +117,7 @@ namespace LastWriteWinsElementSet
             UnionSet(mergedElementSet._addSet, elementSet._addSet);
             UnionSet(mergedElementSet._removeSet, _removeSet);
             UnionSet(mergedElementSet._removeSet, elementSet._removeSet);
-            elementSet.ResolveConflicts();
+            mergedElementSet.ResolveConflicts();
             return mergedElementSet;
         }
 
