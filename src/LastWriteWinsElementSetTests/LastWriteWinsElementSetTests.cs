@@ -135,6 +135,38 @@ namespace LastWriteWinsElementSetTests
 
             removals.ContainsKey(101).Should().BeFalse();
             removals.ContainsKey(102).Should().BeFalse();
+            
+            // The merged element set is a union of the add sets and the remove sets, 
+            // but due to the fact the conflicted remove operations in elementSet2 got removed, 
+            // so the comparison of the elementSet2 to the merged element set should be false
+            elementSet1.Compare(mergedElementSet).Should().BeTrue();
+            elementSet2.Compare(mergedElementSet).Should().BeFalse();
+
+            mergedElementSet.Lookup(101).Should().BeTrue();
+            mergedElementSet.Lookup(102).Should().BeTrue();
+            
+            // Add another remove operation in elementSet1
+            elementSet1.Remove(101, timestamp.AddSeconds(3));
+            elementSet1.Remove(102, timestamp.AddSeconds(3));
+            mergedElementSet = elementSet1.Merge(elementSet2);
+            
+            additions = mergedElementSet.AddSet;
+            removals = mergedElementSet.RemoveSet;
+            additions.ContainsKey(101).Should().BeTrue();
+            additions.ContainsKey(102).Should().BeTrue();
+
+            // The conflicted remove operations are removed, but non-conflicting remove operations remain in the set
+            removals.ContainsKey(101).Should().BeTrue();
+            removals.ContainsKey(102).Should().BeTrue();
+            
+            // The merged element set is a union of the add sets and the remove sets, 
+            // but due to the fact the conflicted remove operations in elementSet2 got removed, 
+            // so the comparison of the elementSet2 to the merged element set should be false
+            elementSet1.Compare(mergedElementSet).Should().BeTrue();
+            elementSet2.Compare(mergedElementSet).Should().BeFalse();
+
+            mergedElementSet.Lookup(101).Should().BeFalse();
+            mergedElementSet.Lookup(102).Should().BeFalse();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace LastWriteWinsElementSet
     {
         private readonly IEqualityComparer<T> _comparer;
         private readonly LastWriteWinsElementEqualityComparer<T> _lastWriteWinsElementComparer;
-        private IDictionary<T, HashSet<LastWriteWinsElement<T>>> _addSet, _removeSet;
+        private readonly IDictionary<T, HashSet<LastWriteWinsElement<T>>> _addSet, _removeSet;
 
         /// <summary>
         /// Gets a clone of _addSet so original set won't be modified
@@ -106,8 +106,8 @@ namespace LastWriteWinsElementSet
                         var additionsOrRemovals1 = set1[element];
                         var additionsOrRemovals2 = set2[element];
                         return 
-                            !additionsOrRemovals1.Except(additionsOrRemovals2,
-                                    _lastWriteWinsElementComparer)
+                            !additionsOrRemovals1
+                                .Except(additionsOrRemovals2, _lastWriteWinsElementComparer)
                                 .Any();
                     }
                 );
