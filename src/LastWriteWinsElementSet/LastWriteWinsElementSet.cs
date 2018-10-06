@@ -138,7 +138,7 @@ namespace LastWriteWinsElementSet
                 var additions = _addSet[element];
                 var removals = _removeSet[element];
                 removals = new HashSet<LastWriteWinsElement<T>>(
-                    removals.Except(additions),
+                    removals.Except(additions, _lastWriteWinsElementComparer),
                     _lastWriteWinsElementComparer
                 );
 

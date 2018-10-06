@@ -110,5 +110,31 @@ namespace LastWriteWinsElementSetTests
             elementSet1.Compare(mergedElementSet).Should().BeTrue();
             elementSet2.Compare(mergedElementSet).Should().BeTrue();
         }
+
+        [Fact]
+        public void TestMergeWithConflicts()
+        {
+            var now = DateTime.UtcNow;
+            var (elementSet1, timestamp) = BuildRandomLastWriteWinsElementSet(now);
+            var (elementSet2, _) = BuildRandomLastWriteWinsElementSet(timestamp.AddSeconds(1));
+
+            // Create two conflicts with value 101 and 102
+            elementSet1.Add(101, timestamp.AddSeconds(1));
+            elementSet2.Add(101, timestamp);
+            elementSet2.Remove(101, timestamp.AddSeconds(1));
+
+            elementSet1.Add(102, timestamp.AddSeconds(2));
+            elementSet2.Add(102, timestamp);
+            elementSet2.Remove(102, timestamp.AddSeconds(2));
+
+            var mergedElementSet = elementSet1.Merge(elementSet2);
+            var additions = mergedElementSet.AddSet;
+            var removals = mergedElementSet.RemoveSet;
+            additions.ContainsKey(101).Should().BeTrue();
+            additions.ContainsKey(102).Should().BeTrue();
+
+            removals.ContainsKey(101).Should().BeFalse();
+            removals.ContainsKey(102).Should().BeFalse();
+        }
     }
 }
